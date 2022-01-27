@@ -48,7 +48,7 @@ def post_upload_document():
 
     ID = hashlib.md5(data).hexdigest() if ID_METHOD == 'MD5' else str(uuid.uuid4())
 
-    if not redis_client.exists(ID):
+    if not redis_client.exists(DOC_NAMESPACE.format(ID)):
 
         redis_client.hset(DOC_NAMESPACE.format(ID), mapping={'done': 0})
 
