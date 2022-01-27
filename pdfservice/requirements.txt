@@ -1,0 +1,4 @@
+Pillow==9.0.0
+redis==4.1.1
+dramatiq[redis]==1.12.3
+pdf2image==1.16.0

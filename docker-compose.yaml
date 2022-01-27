@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: on-failure
+    ports:
+      - "127.0.0.1:80:80"
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    command:
+      - "--maxmemory ${MAX_REDIS_MEM}"
+      - "--maxmemory-policy volatile-lfu"
+    restart: on-failure
+    expose:
+      - 6379
+
+  api:
+    build: ./api
+    container_name: api
+    restart: on-failure
+    environment:
+      - DATA_DIR
+      - DRAMATIQ_QUEUE_NAME
+      - DRAMATIQ_ACTOR_NAME
+      - DOC_NAMESPACE_STRING
+      - DOC_IMG_NAMESPACE_STRING
+      - IMG_FORMAT
+      - MAX_CONTENT_LENGTH
+      - REDIS_DEFAULT_EXPIRATION
+    volumes:
+      - ./data:/data
+    depends_on:
+      - redis
+    expose:
+      - 8000
+
+  pdfservice:
+    build: ./pdfservice
+    container_name: pdfservice
+    restart: on-failure
+    environment:
+      - DATA_DIR
+      - DRAMATIQ_QUEUE_NAME
+      - DRAMATIQ_ACTOR_NAME
+      - DOC_NAMESPACE_STRING
+      - DOC_IMG_NAMESPACE_STRING
+      - IMG_FORMAT
+      - MAX_IMG_WIDTH
+      - MAX_IMG_WEIGHT
+      - REDIS_DEFAULT_EXPIRATION
+    volumes:
+      - ./data:/data
+    depends_on:
+      - redis

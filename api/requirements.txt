@@ -1,0 +1,4 @@
+redis==4.1.1
+dramatiq[redis]==1.12.3
+Flask==2.0.2
+uWSGI==2.0.20
