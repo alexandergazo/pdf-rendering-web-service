@@ -31,6 +31,7 @@ services:
       - IMG_FORMAT
       - MAX_CONTENT_LENGTH
       - REDIS_DEFAULT_EXPIRATION
+      - ID_METHOD
     volumes:
       - ./data:/data
     depends_on:

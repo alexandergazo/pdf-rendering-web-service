@@ -1,6 +1,7 @@
 import hashlib
 import io
 import os
+import uuid
 
 import dramatiq
 import flask
@@ -25,6 +26,9 @@ DOC_IMG_NAMESPACE = os.getenv('DOC_IMG_NAMESPACE_STRING')
 DEFAULT_EXPIRATION = int(os.getenv('REDIS_DEFAULT_EXPIRATION'))
 IMG_FORMAT = os.getenv('IMG_FORMAT').lower()
 
+ID_METHOD = os.getenv('ID_METHOD')
+assert ID_METHOD in ['MD5', 'UUID'], f"ID_METHOD must be (MD5|UUID). Was {ID_METHOD}"
+
 
 @app.route('/documents', methods=['POST'])
 def post_upload_document():
@@ -42,7 +46,7 @@ def post_upload_document():
     data = file.read()
     file.close()
 
-    ID = hashlib.md5(data).hexdigest()
+    ID = hashlib.md5(data).hexdigest() if ID_METHOD == 'MD5' else str(uuid.uuid4())
 
     if not redis_client.exists(ID):
 

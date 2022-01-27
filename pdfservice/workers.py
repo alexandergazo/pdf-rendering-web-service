@@ -5,6 +5,9 @@ import dramatiq
 import pdf2image
 import redis
 from dramatiq.brokers.redis import RedisBroker
+from pdf2image.exceptions import PDFPageCountError
+from pdf2image.exceptions import PDFPopplerTimeoutError
+from pdf2image.exceptions import PDFSyntaxError
 from PIL import Image
 
 redis_client = redis.Redis(host='redis', port=6379)
@@ -30,7 +33,12 @@ def render_pdf(ID: str, hex_data: str):
     os.makedirs(basename, exist_ok=True)
 
     bytes_data = bytes.fromhex(hex_data)
-    images = pdf2image.convert_from_bytes(bytes_data)
+
+    try:
+        images = pdf2image.convert_from_bytes(bytes_data)
+    except (PDFPageCountError, PDFSyntaxError, PDFPopplerTimeoutError):
+        print(f"Error in the document {ID}.")
+        return
 
     for i, img in enumerate(images):
         ratio = min(MAX_WIDTH / img.width, MAX_HEIGHT / img.height)
